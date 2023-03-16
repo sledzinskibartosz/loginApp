@@ -1,28 +1,31 @@
-import { useState } from "react";
-import axios from 'axios';
-import { setUserSession } from '../utils/session';
 import "../styles/loginPage.css";
 import "../styles/global.css";
 import "bootstrap/dist/css/bootstrap.css";
 import { Button, Form } from "react-bootstrap";
-
-const [login, setLogin] = useState('')
-const [pwd, setPwd] = useState('')
-
-const handleLogin = () => {
-  axios.post(`http://localhost:4000/login`, { login: login, pwd: pwd }).then(response => {
-    if(response.data.auth){
-      setUserSession(response.data.token)
-      window.location = '/HomePage';
-    } else {
-      setUserSession(response.data.token)
-    }
-  }).catch(error => {
-    console.log(error)
-  });
-}
+import { useState } from "react";
+import axios from 'axios';
+import { setUserSession } from '../utils/session';
+import Unauthorize from './Unauthorize'
 
 export default function LoginPage() {
+  const [login, setLogin] = useState('')
+  const [pwd, setPwd] = useState('')
+  const [showModal, setShowModal] = useState(false);
+
+  const handleLogin = () => {
+    axios.post(`http://localhost:4000/login`, { login: login, pwd: pwd }).then(response => {
+      if(response.data.auth){
+        setUserSession(response.data.token)
+        window.location = '/HomePage';
+      } else {
+        setUserSession(response.data.token)
+        setShowModal(true);
+      }
+    }).catch(error => {
+      console.log(error)
+    });
+  }
+
   return (
     <div className="app-main">
       <div className="shadow"></div>
@@ -33,7 +36,7 @@ export default function LoginPage() {
           </div>
           <div className="login-content">
             <form className="login-form">
-            <Form.Control
+              <Form.Control
                 type="text"
                 className="form-control"
                 placeholder="Login"
@@ -53,6 +56,7 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+      {showModal && <Unauthorize showModal={showModal} setShowModal={setShowModal} />}
     </div>
   );
 }
